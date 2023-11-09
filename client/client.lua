@@ -5,7 +5,9 @@ local tool
 local metadata = {}
 local hastool = false
 local cutSpot
+local tree
 local Cut = {}
+local ChoppedTrees = {}
 
 local LumberGroup = GetRandomIntInRange(0, 0xffffff)
 
@@ -102,7 +104,7 @@ local function EquipTool()
     Wait(500)
     local ped = PlayerPedId()
     tool = CreateObject(joaat("p_axe02x"), GetOffsetFromEntityInWorldCoords(ped,0.0,0.0,0.0), true, true, true)
-    AttachEntityToEntity(tool, ped, GetPedBoneIndex(ped, 7966), -0.017, -0.035, 0.05, 0.0, 0.0, 90.0, false, false, false, false, 2, true, false, false);
+    AttachEntityToEntity(tool, ped, GetPedBoneIndex(ped, 7966), -0.017, -0.035, 0.00, 0.0, 0.0, 90.0, false, false, false, false, 2, true, false, false);
     Citizen.InvokeNative(0x923583741DC87BCE, ped, 'arthur_healthy')
     Citizen.InvokeNative(0x89F5E7ADECCCB49C, ped, "carry_pitchfork")
     Citizen.InvokeNative(0x2208438012482A1A, ped, true, true)
@@ -120,7 +122,7 @@ local function UnequipTool()
     DeleteObject(tool)
 end
 
-local function goChop()
+local function goChop(tree)
     active = true
     local swing = 0
     local swingcount = math.random(Config.MinSwing, Config.MaxSwing)
@@ -143,7 +145,11 @@ local function goChop()
             Anim(ped,"amb_work@world_human_tree_chop_new@working@pre_swing@male_a@trans", "pre_swing_trans_after_swing",-1,0)
             local testplayer = exports["syn_minigame"]:taskBar(randomizer,7)
             if testplayer == 100 then
-                TriggerServerEvent('BGS_Lumber:addItem', cutSpot)
+                if cutSpot then
+                    TriggerServerEvent('BGS_Lumber:addItem', cutSpot)
+                else
+                    TriggerServerEvent('BGS_Lumber:addItem', false)
+                end
             end
             Wait(500)
         elseif IsControlJustPressed(0, Config.StopCuttingKey) then
@@ -155,12 +161,19 @@ local function goChop()
         if swing == swingcount then
             swing = 0
             active = false
-            Citizen.CreateThread(function()
-                local trackedSpot = cutSpot
-                table.insert(Cut, trackedSpot)
-                Citizen.Wait(trackedSpot.timeout)
-                table.remove(Cut, GetArrayKey(Cut, trackedSpot))
-            end)
+            if cutSpot then
+                Citizen.CreateThread(function()
+                    if not cutSpot then
+                        Citizen.Wait(Config.TreeTimeout)
+                        table.remove(ChoppedTrees, GetArrayKey(ChoppedTrees, tree))
+                    else
+                        local trackedSpot = cutSpot
+                        table.insert(Cut, trackedSpot)
+                        Citizen.Wait(trackedSpot.timeout)
+                        table.remove(Cut, GetArrayKey(Cut, trackedSpot))
+                    end
+                end)
+            end
         end
         Wait(1)
     end
@@ -213,18 +226,25 @@ CreateThread(function()
             end
         end
         if Config.UseTrees then
+            local ped = PlayerPedId()
             for k, v in pairs(Config.Trees) do
-                local tree = DoesObjectOfTypeExistAtCoords(x, y, z, 1.0, GetHashKey(v), true)
-                if tree and not InArray(ChoppedTrees, tostring(v)) then
-                    if not active then
-                        local ChoppingGroupName = CreateVarString(10, 'LITERAL_STRING', "Chop")
-                        PromptSetActiveGroupThisFrame(TreeGroup, ChoppingGroupName)
+                local coords = GetEntityCoords(ped)
+                local tree = DoesObjectOfTypeExistAtCoords(coords, 1.0, GetHashKey(v), true)
+                if tree and hastool then
+                    if not active and not contains(ChoppedTrees, tostring(v)) then
+                        PromptSetActiveGroupThisFrame(LumberGroup, LumberGroupName)
+                        PromptSetEnabled(CutPrompt, true)
+                    else
+                        PromptSetActiveGroupThisFrame(LumberGroup, LumberGroupName)
+                        PromptSetEnabled(CutPrompt, false)
                     end
-                    if PromptHasHoldModeCompleted(CuttingPrompt) then
-                        active = true
+                    if PromptHasHoldModeCompleted(CutPrompt) then
+                        cutSpot = false
+                        tree = tostring(v)
+                        table.insert(ChoppedTrees, tree)
                         SetCurrentPedWeapon(playerped, GetHashKey("WEAPON_UNARMED"), true, 0, false, false)
                         Citizen.Wait(500)
-                        TriggerServerEvent("vorp_lumberjack:axecheck", tostring(v))
+                        TriggerServerEvent("BGS_Lumber:axecheck", metadata)
                     end
                 end
             end
@@ -271,7 +291,6 @@ end)
 RegisterNetEvent("BGS_Lumber:axechecked")
 AddEventHandler("BGS_Lumber:axechecked", function(meta, broken)
     metadata = meta
-    print(metadata)
     if broken then
         TriggerEvent("vorp:TipRight", "Your axe broke!", 3000)
         UnequipTool()

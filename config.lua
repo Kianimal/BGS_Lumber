@@ -18,6 +18,8 @@ Config.maxDifficulty = 2700
 Config.UseCuttingLocations = true
 Config.UseTrees = true
 
+Config.TreeTimeout = 120000
+
 -- Cutting locations
 Config.CuttingLocations = {
     {coords = vector3(2510.64, -134.39, 45.63), showmarker = true, timeout = 120000, items = {
@@ -50,6 +52,16 @@ Config.CuttingLocations = {
         {name = "pulp", label = "Pulp", chance = 10, amount = 3},
     }
     }
+}
+
+Config.Items = {
+    {name = "sap", label = "Sap", chance = 8, amount = 2},
+    {name = "honey", label = "Honey", chance = 5, amount = 2},
+    {name = "wood", label = "Soft Wood", chance = 10, amount = 5},
+    {name = "hwood", label = "Hard Wood", chance = 8, amount = 5},
+    {name = "rubber", label = "Rubber", chance = 5, amount = 4},
+    {name = "fibers", label = "Fibers", chance = 8, amount = 5},
+    {name = "pulp", label = "Pulp", chance = 10, amount = 3},
 }
 
 Config.Trees = {

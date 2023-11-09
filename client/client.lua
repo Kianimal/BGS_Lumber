@@ -122,7 +122,7 @@ local function UnequipTool()
     DeleteObject(tool)
 end
 
-local function goChop(tree)
+local function goChop()
     active = true
     local swing = 0
     local swingcount = math.random(Config.MinSwing, Config.MaxSwing)
@@ -145,11 +145,7 @@ local function goChop(tree)
             Anim(ped,"amb_work@world_human_tree_chop_new@working@pre_swing@male_a@trans", "pre_swing_trans_after_swing",-1,0)
             local testplayer = exports["syn_minigame"]:taskBar(randomizer,7)
             if testplayer == 100 then
-                if cutSpot then
-                    TriggerServerEvent('BGS_Lumber:addItem', cutSpot)
-                else
-                    TriggerServerEvent('BGS_Lumber:addItem', false)
-                end
+                TriggerServerEvent('BGS_Lumber:addItem', cutSpot)
             end
             Wait(500)
         elseif IsControlJustPressed(0, Config.StopCuttingKey) then
@@ -161,19 +157,18 @@ local function goChop(tree)
         if swing == swingcount then
             swing = 0
             active = false
-            if cutSpot then
-                Citizen.CreateThread(function()
-                    if not cutSpot then
-                        Citizen.Wait(Config.TreeTimeout)
-                        table.remove(ChoppedTrees, GetArrayKey(ChoppedTrees, tree))
-                    else
-                        local trackedSpot = cutSpot
-                        table.insert(Cut, trackedSpot)
-                        Citizen.Wait(trackedSpot.timeout)
-                        table.remove(Cut, GetArrayKey(Cut, trackedSpot))
-                    end
-                end)
-            end
+            Citizen.CreateThread(function()
+                if not cutSpot then
+                    local treeStored = tree
+                    Citizen.Wait(Config.TreeTimeout)
+                    table.remove(ChoppedTrees, GetArrayKey(ChoppedTrees, treeStored))
+                else
+                    local trackedSpot = cutSpot
+                    table.insert(Cut, trackedSpot)
+                    Citizen.Wait(trackedSpot.timeout)
+                    table.remove(Cut, GetArrayKey(Cut, trackedSpot))
+                end
+            end)
         end
         Wait(1)
     end
@@ -207,9 +202,9 @@ CreateThread(function()
     while true do
         Wait(1)
         local ped = PlayerPedId()
-        local coords = GetEntityCoords(ped)
         if Config.UseCuttingLocations then
             for cutting, v in pairs(Config.CuttingLocations) do
+                local coords = GetEntityCoords(ped)
                 if hastool and GetDistanceBetweenCoords(coords, v.coords) < 1.0 and not active and not contains(Cut, v) and not IsPedOnMount(ped) and not IsPedInAnyVehicle(ped) and not IsPedDeadOrDying(ped) then
                     PromptSetActiveGroupThisFrame(LumberGroup, LumberGroupName)
                     PromptSetEnabled(CutPrompt, true)
@@ -226,11 +221,10 @@ CreateThread(function()
             end
         end
         if Config.UseTrees then
-            local ped = PlayerPedId()
             for k, v in pairs(Config.Trees) do
                 local coords = GetEntityCoords(ped)
-                local tree = DoesObjectOfTypeExistAtCoords(coords, 1.0, GetHashKey(v), true)
-                if tree and hastool then
+                local treeObj = DoesObjectOfTypeExistAtCoords(coords, 0.5, GetHashKey(v), true)
+                if treeObj and hastool then
                     if not active and not contains(ChoppedTrees, tostring(v)) then
                         PromptSetActiveGroupThisFrame(LumberGroup, LumberGroupName)
                         PromptSetEnabled(CutPrompt, true)

@@ -13,7 +13,6 @@ AddEventHandler("BGS_Lumber:axecheck", function(metadata)
 	if _source then
 		local axe = exports.vorp_inventory:getItemContainingMetadata(_source, Config.Axe, metadata, nil)
 		local meta =  axe["metadata"]
-		print(meta.durability)
 		if meta.durability == nil then
 			local durability = 100 - Config.AxeDamage
 			VorpInv.subItem(_source, Config.Axe, 1,{})

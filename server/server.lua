@@ -10,22 +10,25 @@ end)
 RegisterServerEvent("BGS_Lumber:axecheck")
 AddEventHandler("BGS_Lumber:axecheck", function(metadata)
 	local _source = source
-	local axe = exports.vorp_inventory:getItemContainingMetadata(source, Config.Axe, metadata, nil)
-	local meta =  axe["metadata"]
-	if meta.durability == nil then
-		local durability = 100 - Config.AxeDamage
-		VorpInv.subItem(_source, Config.Axe, 1,{})
-		VorpInv.addItem(_source, Config.Axe, 1,{description = "Durability = "..durability,durability = durability})
-		TriggerClientEvent("BGS_Lumber:axechecked", _source, {description = "Durability = "..durability,durability = durability}, false)
-	else
-		local durability = meta.durability - Config.AxeDamage
-		local description = "Durability = "
-		VorpInv.subItem(_source, Config.Axe, 1, meta)
-		if 1 > durability then
-			TriggerClientEvent("BGS_Lumber:axechecked", _source, meta, true)
+	if _source then
+		local axe = exports.vorp_inventory:getItemContainingMetadata(_source, Config.Axe, metadata, nil)
+		local meta =  axe["metadata"]
+		print(meta.durability)
+		if meta.durability == nil then
+			local durability = 100 - Config.AxeDamage
+			VorpInv.subItem(_source, Config.Axe, 1,{})
+			VorpInv.addItem(_source, Config.Axe, 1,{description = "Durability = "..durability,durability = durability})
+			TriggerClientEvent("BGS_Lumber:axechecked", _source, {description = "Durability = "..durability,durability = durability}, false)
 		else
-			VorpInv.addItem(_source, Config.Axe, 1,{description = description..durability,durability = durability})
-			TriggerClientEvent("BGS_Lumber:axechecked", _source, {description = description..durability,durability = durability}, false)
+			local durability = meta.durability - Config.AxeDamage
+			local description = "Durability = "
+			VorpInv.subItem(_source, Config.Axe, 1, meta)
+			if 1 > durability then
+				TriggerClientEvent("BGS_Lumber:axechecked", _source, meta, true)
+			else
+				VorpInv.addItem(_source, Config.Axe, 1,{description = description..durability,durability = durability})
+				TriggerClientEvent("BGS_Lumber:axechecked", _source, {description = description..durability,durability = durability}, false)
+			end
 		end
 	end
 end)

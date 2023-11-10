@@ -104,7 +104,7 @@ local function EquipTool()
     Wait(500)
     local ped = PlayerPedId()
     tool = CreateObject(joaat("p_axe02x"), GetOffsetFromEntityInWorldCoords(ped,0.0,0.0,0.0), true, true, true)
-    AttachEntityToEntity(tool, ped, GetPedBoneIndex(ped, 7966), -0.017, -0.035, 0.00, 0.0, 0.0, 90.0, false, false, false, false, 2, true, false, false);
+    AttachEntityToEntity(tool, ped, GetPedBoneIndex(ped, 7966), -0.017, 0.025, 0.00, 0.0, 0.0, 0.0, false, false, false, false, 2, true, false, false);
     Citizen.InvokeNative(0x923583741DC87BCE, ped, 'arthur_healthy')
     Citizen.InvokeNative(0x89F5E7ADECCCB49C, ped, "carry_pitchfork")
     Citizen.InvokeNative(0x2208438012482A1A, ped, true, true)

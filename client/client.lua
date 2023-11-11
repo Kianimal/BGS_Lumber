@@ -202,48 +202,70 @@ CreateThread(function()
     while true do
         Wait(1)
         local ped = PlayerPedId()
-        if Config.UseCuttingLocations then
+        if Config.UseCuttingLocations and hastool then
             for cutting, v in pairs(Config.CuttingLocations) do
                 local coords = GetEntityCoords(ped)
-                if hastool and GetDistanceBetweenCoords(coords, v.coords) < 1.0 and not active and not contains(Cut, v) and not IsPedOnMount(ped) and not IsPedInAnyVehicle(ped) and not IsPedDeadOrDying(ped) then
+                if GetDistanceBetweenCoords(coords, v.coords) < 1.0 and not active and not contains(Cut, v) and not IsPedOnMount(ped) and not IsPedInAnyVehicle(ped) and not IsPedDeadOrDying(ped) then
                     PromptSetActiveGroupThisFrame(LumberGroup, LumberGroupName)
                     PromptSetEnabled(CutPrompt, true)
-                elseif hastool and GetDistanceBetweenCoords(coords, v.coords) < 1.0 and not active and contains(Cut, v) and not IsPedOnMount(ped) and not IsPedInAnyVehicle(ped) and not IsPedDeadOrDying(ped) then
+                elseif GetDistanceBetweenCoords(coords, v.coords) < 1.0 and not active and contains(Cut, v) and not IsPedOnMount(ped) and not IsPedInAnyVehicle(ped) and not IsPedDeadOrDying(ped) then
                     PromptSetActiveGroupThisFrame(LumberGroup, LumberGroupName)
                     PromptSetEnabled(CutPrompt, false)
                 end
                 if PromptHasHoldModeCompleted(CutPrompt) and GetDistanceBetweenCoords(coords, v.coords) < 1.0 then
                     cutSpot = v
-                    SetCurrentPedWeapon(playerped, GetHashKey("WEAPON_UNARMED"), true, 0, false, false)
+                    SetCurrentPedWeapon(playerped, joaat("WEAPON_UNARMED"), true, 0, false, false)
                     Citizen.Wait(500)
                     TriggerServerEvent("BGS_Lumber:axecheck", metadata)
                 end
             end
         end
-        if Config.UseTrees then
-            for k, v in pairs(Config.Trees) do
-                local coords = GetEntityCoords(ped)
-                local treeObj = DoesObjectOfTypeExistAtCoords(coords, 0.5, GetHashKey(v), true)
-                if treeObj and hastool then
-                    if not active and not contains(ChoppedTrees, tostring(v)) then
-                        PromptSetActiveGroupThisFrame(LumberGroup, LumberGroupName)
-                        PromptSetEnabled(CutPrompt, true)
-                    else
-                        PromptSetActiveGroupThisFrame(LumberGroup, LumberGroupName)
-                        PromptSetEnabled(CutPrompt, false)
-                    end
-                    if PromptHasHoldModeCompleted(CutPrompt) then
-                        cutSpot = false
-                        tree = tostring(v)
-                        table.insert(ChoppedTrees, tree)
-                        SetCurrentPedWeapon(playerped, GetHashKey("WEAPON_UNARMED"), true, 0, false, false)
-                        Citizen.Wait(500)
-                        TriggerServerEvent("BGS_Lumber:axecheck", metadata)
+    end
+end)
+
+CreateThread(function()
+	while true do
+		Wait(1000)
+        if hastool then
+            local itemSet = CreateItemset(true)
+
+            local size = Citizen.InvokeNative(0x59B57C4B06531E1E, GetEntityCoords(PlayerPedId()), Config.MinimumDistance, itemSet, 3, Citizen.ResultAsInteger())
+
+            if size > 0 then
+                for index = 0, size do
+                    local entity = GetIndexedItemInItemset(index, itemSet)
+                    local coords = GetEntityCoords(entity)
+                    local model_hash = GetEntityModel(entity)
+                    for k, v in ipairs(Config.Trees) do
+                        local pedCoords = GetEntityCoords(PlayerPedId())
+                        while joaat(Config.Trees[k].model) == model_hash and not contains(ChoppedTrees, coords) and GetDistanceBetweenCoords(pedCoords, coords) < Config.MinimumDistance do
+                            Wait(1)
+                            pedCoords = GetEntityCoords(PlayerPedId())
+                            PromptSetActiveGroupThisFrame(LumberGroup, LumberGroupName)
+                            PromptSetEnabled(CutPrompt, true)
+                            if PromptHasHoldModeCompleted(CutPrompt) then
+                                cutSpot = false
+                                tree = coords
+                                table.insert(ChoppedTrees, tree)
+                                SetCurrentPedWeapon(playerped, joaat("WEAPON_UNARMED"), true)
+                                Citizen.Wait(500)
+                                TriggerServerEvent("BGS_Lumber:axecheck", metadata)
+                            end
+                        end
+                        while joaat(Config.Trees[k].model) == model_hash and contains(ChoppedTrees, coords) and GetDistanceBetweenCoords(pedCoords, coords) < Config.MinimumDistance do
+                            Wait(1)
+                            pedCoords = GetEntityCoords(PlayerPedId())
+                            PromptSetActiveGroupThisFrame(LumberGroup, LumberGroupName)
+                            PromptSetEnabled(CutPrompt, false)
+                        end
                     end
                 end
             end
+            if IsItemsetValid(itemSet) then
+                DestroyItemset(itemSet)
+            end
         end
-    end
+	end
 end)
 
 CreateThread(function()

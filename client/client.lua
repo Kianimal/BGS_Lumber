@@ -1,5 +1,4 @@
 local CutPrompt
-local LumberGroupName  = CreateVarString(10, 'LITERAL_STRING', "Lumber")
 local active = false
 local tool
 local metadata = {}
@@ -133,6 +132,7 @@ local function goChop()
     PromptSetVisible(UsePrompt, true)
     PromptSetVisible(CutPrompt, false)
     while active do
+        local LumberGroupName  = CreateVarString(10, 'LITERAL_STRING', Config.PromptGroupName)
         PromptSetActiveGroupThisFrame(LumberGroup, LumberGroupName)
         FreezeEntityPosition(PlayerPedId(), true)
         if IsPedDeadOrDying(PlayerPedId(), true) then
@@ -205,6 +205,7 @@ CreateThread(function()
         if Config.UseCuttingLocations and hastool then
             for cutting, v in pairs(Config.CuttingLocations) do
                 local coords = GetEntityCoords(ped)
+                local LumberGroupName  = CreateVarString(10, 'LITERAL_STRING', Config.PromptGroupName)
                 if GetDistanceBetweenCoords(coords, v.coords) < 1.0 and not active and not contains(Cut, v) and not IsPedOnMount(ped) and not IsPedInAnyVehicle(ped) and not IsPedDeadOrDying(ped) then
                     PromptSetActiveGroupThisFrame(LumberGroup, LumberGroupName)
                     PromptSetEnabled(CutPrompt, true)

@@ -5,6 +5,7 @@ Config.MaxSwing = 3 -- Max swings on a tree
 
 Config.Axe = "hatchet" -- Item from your database that you want to use for a axe
 Config.CutPromptKey = 0xD9D0E1C0 -- Key used to start cutting (Spacebar)
+Config.PromptGroupName = "Lumber"
 Config.StopCuttingKey = 0x3B24C470 -- Key to stop cutting (F)
 Config.CutTreeKey = 0x07B8BEAF -- Key to chop tree (Left Click)
 

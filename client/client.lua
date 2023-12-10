@@ -242,6 +242,7 @@ CreateThread(function()
                         while joaat(Config.Trees[k].model) == model_hash and not contains(ChoppedTrees, coords) and GetDistanceBetweenCoords(pedCoords, coords) < Config.MinimumDistance do
                             Wait(1)
                             pedCoords = GetEntityCoords(PlayerPedId())
+                            local LumberGroupName  = CreateVarString(10, 'LITERAL_STRING', Config.PromptGroupName)
                             PromptSetActiveGroupThisFrame(LumberGroup, LumberGroupName)
                             PromptSetEnabled(CutPrompt, true)
                             if PromptHasHoldModeCompleted(CutPrompt) then
@@ -256,6 +257,7 @@ CreateThread(function()
                         while joaat(Config.Trees[k].model) == model_hash and contains(ChoppedTrees, coords) and GetDistanceBetweenCoords(pedCoords, coords) < Config.MinimumDistance do
                             Wait(1)
                             pedCoords = GetEntityCoords(PlayerPedId())
+                            local LumberGroupName  = CreateVarString(10, 'LITERAL_STRING', Config.PromptGroupName)
                             PromptSetActiveGroupThisFrame(LumberGroup, LumberGroupName)
                             PromptSetEnabled(CutPrompt, false)
                         end

@@ -102,24 +102,54 @@ local function EquipTool()
     end
     Wait(500)
     local ped = PlayerPedId()
-    tool = CreateObject(joaat("p_axe02x"), GetOffsetFromEntityInWorldCoords(ped,0.0,0.0,0.0), true, true, true)
-    AttachEntityToEntity(tool, ped, GetPedBoneIndex(ped, 7966), -0.017, 0.025, 0.00, 0.0, 0.0, 0.0, false, false, false, false, 2, true, false, false);
-    Citizen.InvokeNative(0x923583741DC87BCE, ped, 'arthur_healthy')
+    -- Citizen.InvokeNative(0x923583741DC87BCE, ped, 'arthur_healthy')
     Citizen.InvokeNative(0x89F5E7ADECCCB49C, ped, "carry_pitchfork")
     Citizen.InvokeNative(0x2208438012482A1A, ped, true, true)
-    ForceEntityAiAndAnimationUpdate(tool, 1)
+    ForceEntityAiAndAnimationUpdate(tool, true)
     Citizen.InvokeNative(0x3A50753042B6891B, ped, "PITCH_FORKS")
+    Wait(50)
+    tool = CreateObject(joaat("p_axe02x"), GetOffsetFromEntityInWorldCoords(ped, 0.0 ,0.0, 0.0), true, true, true)
+    AttachEntityToEntity(tool, ped, GetPedBoneIndex(ped, 7966), 0.0,0.0,0.0,  0.0,0.0,0.0, 0, 0, 0, 0, 2, 1, 0, 0)
     Wait(500)
 end
 
 local function UnequipTool()
     local ped = PlayerPedId()
-    hastool = false
-    Citizen.InvokeNative(0x923583741DC87BCE, ped, 'default')
-    Citizen.InvokeNative(0x89F5E7ADECCCB49C, ped, "default")
-    Citizen.InvokeNative(0x2208438012482A1A, ped, true, true)
     DeleteObject(tool)
+    hastool = false
+    -- Citizen.InvokeNative(0x923583741DC87BCE, ped, 'DEFAULT')
+    Citizen.InvokeNative(0x89F5E7ADECCCB49C, ped, "normal")
+    Citizen.InvokeNative(0x2208438012482A1A, ped, true, true)
+    ForceEntityAiAndAnimationUpdate(ped, true)
+    ClearPedTasks(ped)
 end
+
+-- local function EquipTool()
+--     hastool = true
+--     SetCurrentPedWeapon(player, `WEAPON_UNARMED`, true)
+--     if tool then
+--         DeleteEntity(tool)
+--     end
+--     Wait(500)
+--     local ped = PlayerPedId()
+--     tool = CreateObject(joaat("p_axe02x"), GetOffsetFromEntityInWorldCoords(ped,0.0,0.0,0.0), true, true, true)
+--     AttachEntityToEntity(tool, ped, GetPedBoneIndex(ped, 7966), -0.017, 0.025, 0.00, 0.0, 0.0, 0.0, false, false, false, false, 2, true, false, false);
+--     Citizen.InvokeNative(0x923583741DC87BCE, ped, 'arthur_healthy')
+--     Citizen.InvokeNative(0x89F5E7ADECCCB49C, ped, "carry_pitchfork")
+--     Citizen.InvokeNative(0x2208438012482A1A, ped, true, true)
+--     ForceEntityAiAndAnimationUpdate(tool, 1)
+--     Citizen.InvokeNative(0x3A50753042B6891B, ped, "PITCH_FORKS")
+--     Wait(500)
+-- end
+
+-- local function UnequipTool()
+--     local ped = PlayerPedId()
+--     hastool = false
+--     Citizen.InvokeNative(0x923583741DC87BCE, ped, 'mp_male')
+--     Citizen.InvokeNative(0x89F5E7ADECCCB49C, ped, "default")
+--     Citizen.InvokeNative(0x2208438012482A1A, ped, true, true)
+--     DeleteObject(tool)
+-- end
 
 local function goChop()
     active = true

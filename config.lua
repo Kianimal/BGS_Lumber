@@ -20,6 +20,8 @@
 
 Config = {}
 
+Config.UseCustomFramework = false
+
 Config.MinSwing = 1                -- Min swings on a tree
 Config.MaxSwing = 3                -- Max swings on a tree
 
@@ -30,6 +32,8 @@ Config.StopCuttingKey = 0x3B24C470 -- Key to stop cutting (F)
 Config.CutTreeKey = 0x07B8BEAF     -- Key to chop tree (Left Click)
 
 Config.AxeDamage = 5               -- Amount of damage done to axe durability per cutting node
+
+Config.UseMinigame = true -- Use the minigame or not
 
 ----- lower number is harder
 Config.minDifficulty = 4000
@@ -42,6 +46,19 @@ Config.UseTrees = true
 Config.TreeTimeout = 120000
 
 Config.MinimumDistance = 2.0
+
+Config.CustomInventoryAddFunction = function (source, rewardItem, rewardAmount)
+  -- TriggerEvent("vorpCore:canCarryItems", tonumber(source), rewardAmount, function(canCarry)
+  --   TriggerEvent("vorpCore:canCarryItem", tonumber(source), rewardItem.name,rewardAmount, function(canCarry2)
+  --     if canCarry and canCarry2 then
+  --       VorpInv.addItem(source, rewardItem.name, rewardAmount)
+  --       TriggerClientEvent("vorp:TipRight", source, "You found "..rewardItem.label, 3000)
+  --     else
+  --       TriggerClientEvent("vorp:TipRight", source, "You can't carry any more "..rewardItem.label, 3000)
+  --     end
+  --   end)
+  -- end)
+end
 
 -- Cutting locations
 Config.CuttingLocations = {
